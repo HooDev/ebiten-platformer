@@ -63,9 +63,9 @@ func TestRoboGame_LoadAssets_Success(t *testing.T) {
 		t.Error("playerImage is nil after LoadAssets")
 	}
 	
-	// Check that state changed to playing
-	if game.GetState() != engine.StatePlaying {
-		t.Errorf("Expected state to be StatePlaying after LoadAssets, got %v", game.GetState())
+	// Check that state changed to menu
+	if game.GetState() != engine.StateMenu {
+		t.Errorf("Expected state to be StateMenu after LoadAssets, got %v", game.GetState())
 	}
 	
 	// Check that asset manager has the loaded image
@@ -159,15 +159,14 @@ func TestRoboGame_GameStateTransitions(t *testing.T) {
 	if game.GetState() != engine.StateLoading {
 		t.Errorf("Expected initial state StateLoading, got %v", game.GetState())
 	}
-	
-	// Load assets - should transition to playing
+		// Load assets - should transition to menu
 	err := game.LoadAssets()
 	if err != nil {
 		t.Fatalf("LoadAssets failed: %v", err)
 	}
-	
-	if game.GetState() != engine.StatePlaying {
-		t.Errorf("Expected state StatePlaying after LoadAssets, got %v", game.GetState())
+
+	if game.GetState() != engine.StateMenu {
+		t.Errorf("Expected state StateMenu after LoadAssets, got %v", game.GetState())
 	}
 	
 	// Test state changes
