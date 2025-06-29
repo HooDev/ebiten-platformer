@@ -16,6 +16,7 @@ import (
 type RoboGame struct {
 	*engine.Game
 	playerImage *ebiten.Image
+	overlayImage *ebiten.Image
 }
 
 // NewRoboGame creates a new platformer game instance
@@ -33,6 +34,7 @@ func NewRoboGame() *RoboGame {
 	
 	roboGame := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(320, 240),
 	}
 
 	// Set up game-specific state callbacks
@@ -239,10 +241,9 @@ func (g *RoboGame) drawPausedScreen(screen *ebiten.Image) {
 	// Draw the game screen first (as background)
 	g.drawGameScreen(screen)
 	
-	// Add semi-transparent overlay
-	overlay := ebiten.NewImage(320, 240)
-	overlay.Fill(color.RGBA{0, 0, 0, 128}) // Semi-transparent black
-	screen.DrawImage(overlay, nil)
+	// Add semi-transparent overlay using reusable image
+	g.overlayImage.Fill(color.RGBA{0, 0, 0, 128}) // Semi-transparent black
+	screen.DrawImage(g.overlayImage, nil)
 	
 	// Pause text
 	ebitenutil.DebugPrintAt(screen, "GAME PAUSED", 120, 100)
@@ -297,9 +298,8 @@ func (g *RoboGame) drawTransitionScreen(screen *ebiten.Image) {
 	
 	// Add transition effect (simple fade)
 	alpha := uint8(progress * 255)
-	overlay := ebiten.NewImage(320, 240)
-	overlay.Fill(color.RGBA{0, 0, 0, alpha})
-	screen.DrawImage(overlay, nil)
+	g.overlayImage.Fill(color.RGBA{0, 0, 0, alpha})
+	screen.DrawImage(g.overlayImage, nil)
 	
 	// Show transition progress for debugging
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Transitioning... %.1f%%", progress*100), 10, 220)
