@@ -10,9 +10,9 @@ This document outlines the development roadmap for the ROBO-9 platformer game bu
 **Goal**: Establish basic game loop and player movement
 
 #### 1.1 Project Setup
-- [x] Initialize Go module and Ebitengine dependency
+- [x] Initialise Go module and Ebitengine dependency
 - [x] Create basic project structure
-- [ ] Set up asset loading system
+- [x] Set up asset loading system
 - [ ] Implement basic game state management
 
 #### 1.2 Basic Player Entity
@@ -64,7 +64,7 @@ This document outlines the development roadmap for the ROBO-9 platformer game bu
 #### 3.2 Enemy Systems
 - [ ] Killer drone entities
 - [ ] Patrol AI patterns
-- [ ] Detection and chase behavior
+- [ ] Detection and chase behaviour
 - [ ] Collision damage
 
 #### 3.3 Environmental Obstacles
@@ -114,9 +114,9 @@ This document outlines the development roadmap for the ROBO-9 platformer game bu
 - [ ] Settings/options menu
 
 #### 5.3 Final Polish
-- [ ] Bug fixes and optimization
+- [ ] Bug fixes and optimisation
 - [ ] Balance tuning
-- [ ] Performance optimization
+- [ ] Performance optimisation
 - [ ] Documentation completion
 
 **Deliverable**: Polished, complete game ready for release
@@ -203,7 +203,7 @@ main.go                 // Entry point and game loop
 
 ### Technical Risks
 - **Ebitengine limitations**: Research library capabilities early
-- **Performance issues**: Profile and optimize regularly
+- **Performance issues**: Profile and optimise regularly
 - **Asset pipeline**: Establish workflow early
 
 ### Design Risks
@@ -229,7 +229,7 @@ main.go                 // Entry point and game loop
 - Engaging core loop (collect → help → progress)
 - Clear difficulty progression
 - Intuitive controls and mechanics
-- Replayability through secrets and optimization
+- Replayability through secrets and optimisation
 
 ## Timeline Summary
 

@@ -63,6 +63,21 @@ To run the game:
 go run main.go
 ```
 
+### WSL Environment
+
+When running the game in WSL (Windows Subsystem for Linux), you need to set the target OS to Windows:
+
+```bash
+GOOS=windows go run main.go
+```
+
+Or use the provided convenience script:
+
+```bash
+./run.wsl.sh
+```
+
+
 ## Learning Resources
 
 This project demonstrates various game development concepts including:
