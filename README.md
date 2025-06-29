@@ -45,19 +45,32 @@ ROBO-9 comes equipped with several helpful capabilities:
 
 ## Features
 
-- 2D platformer mechanics
-- Sprite-based graphics
-- Simple physics implementation
-- Game state management
+- **Complete Animation System**: Multi-state sprite animations with smooth transitions
+- **ROBO-9 Player Character**: Fully animated robot with movement, jumping, climbing, and damage states
+- **Physics-Based Movement**: Gravity, friction, and collision-based player movement
+- **Flexible Input System**: Keyboard controls with multiple key bindings
+- **Game State Management**: Menu, playing, paused, and game over states
+- **Asset Management**: Efficient sprite loading and management
+- **Test Framework**: Built-in test sprite generation for development
+- **Delta-Time Animation**: Smooth, framerate-independent animations
 
 ## Prerequisites
 
 - Go 1.16 or higher
 - Basic understanding of Go programming
+- Ebitengine v2 (automatically managed via Go modules)
 
 ## Getting Started
 
-To run the game:
+### Building and Running
+
+To build the game:
+
+```bash
+go build -o robo-platformer
+```
+
+To run the game directly:
 
 ```bash
 go run main.go
@@ -77,16 +90,78 @@ Or use the provided convenience script:
 ./run.wsl.sh
 ```
 
+### Controls
+
+| Action | Primary Keys | Alternative Keys |
+|--------|-------------|------------------|
+| Move Left | Left Arrow | A |
+| Move Right | Right Arrow | D |
+| Jump | Space | Up Arrow, W |
+| Climb Up | Up Arrow | W (when near climbable surface) |
+| Climb Down | Down Arrow | S (when climbing) |
+| Pause | Escape | - |
+| Menu | M | - |
+
+#### Debug Controls (Development)
+- **C**: Toggle climbing mode
+- **X**: Test damage state
+
+## Project Structure
+
+```
+├── main.go                 # Game entry point and main game loop
+├── engine/                 # Core game engine components
+│   ├── game.go            # Base game state management
+│   └── assets.go          # Asset loading and management
+├── entities/              # Game entities and components
+│   ├── player.go          # ROBO-9 player implementation
+│   ├── animation.go       # Animation system
+│   ├── input.go           # Input handling
+│   └── sprites.go         # Test sprite generation	├── assets/                # Game assets (sprites, audio, etc.)
+	│   └── player.png         # Player sprite sheet (192x96px)
+	└── docs/                  # Documentation
+    ├── development-plan.md         # Project roadmap
+    ├── animation-system.md         # Animation system docs
+    ├── player-implementation.md    # Player entity docs
+    └── robo9-sprite-specification.md # Sprite requirements
+```
+
+## Development Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- **[Development Plan](docs/development-plan.md)**: Complete project roadmap and feature timeline
+- **[Animation System](docs/animation-system.md)**: Technical details of the animation framework
+- **[Player Implementation](docs/player-implementation.md)**: ROBO-9 character implementation guide
+- **[Sprite Specification](docs/robo9-sprite-specification.md)**: Detailed sprite sheet requirements and layout
+
 
 ## Learning Resources
 
 This project demonstrates various game development concepts including:
 
-- Game loops and rendering
-- Input handling
-- Collision detection
-- Animation and sprite management
-- Game state management
+- **Game Loops and Rendering**: Main game loop, frame timing, and rendering pipeline
+- **Input Handling**: Keyboard input processing and player control systems
+- **Animation Systems**: Sprite-based animation with state management and timing
+- **Physics Simulation**: Basic gravity, collision detection, and movement physics
+- **Game State Management**: Menu systems, pause functionality, and state transitions
+- **Asset Management**: Loading and organizing game resources efficiently
+- **Entity-Component Patterns**: Modular game object design and architecture
+
+### Technical Highlights
+
+- **Delta-Time Animation**: Framerate-independent animation timing
+- **State Machine Design**: Clean separation of game states and transitions
+- **Modular Architecture**: Easily extensible entity and component system
+- **Performance Optimization**: Efficient sprite rendering and memory management
+
+### Educational Value
+
+The codebase serves as a practical example of:
+- Go programming best practices for game development
+- Ebitengine API usage and optimization techniques
+- Game architecture patterns and design principles
+- Testing strategies for interactive applications
 
 ## License
 

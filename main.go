@@ -10,20 +10,25 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"ebiten-platformer/engine"
+	"ebiten-platformer/entities"
 )
 
 // RoboGame extends the base engine.Game with platformer-specific logic
 type RoboGame struct {
 	*engine.Game
-	playerImage *ebiten.Image
-	overlayImage *ebiten.Image
+	playerImage    *ebiten.Image
+	overlayImage   *ebiten.Image
+	player         *entities.Player
+	inputHandler   *entities.InputHandler
+	deltaTime      float64
+	lastUpdateTime float64
 }
 
 // NewRoboGame creates a new platformer game instance
 func NewRoboGame() *RoboGame {
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    "assets",
 			UseEmbedded: false,
@@ -33,8 +38,9 @@ func NewRoboGame() *RoboGame {
 	baseGame := engine.NewGame(config)
 	
 	roboGame := &RoboGame{
-		Game: baseGame,
-		overlayImage: ebiten.NewImage(320, 240),
+		Game:         baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
+		deltaTime:    1.0 / 60.0, // Initialize with 60 FPS
 	}
 
 	// Set up game-specific state callbacks
@@ -57,7 +63,7 @@ func (g *RoboGame) setupGameStateCallbacks() {
 	// Playing state input handling
 	stateManager.RegisterOnUpdate(engine.StatePlaying, func() error {
 		// Handle pause input
-		if inpututil.IsKeyJustPressed(ebiten.KeyEscape) || inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 			g.TogglePause()
 		}
 
@@ -77,7 +83,7 @@ func (g *RoboGame) setupGameStateCallbacks() {
 	// Paused state input handling
 	stateManager.RegisterOnUpdate(engine.StatePaused, func() error {
 		// Handle resume input
-		if inpututil.IsKeyJustPressed(ebiten.KeyEscape) || inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 			g.TogglePause()
 		}
 
@@ -134,12 +140,20 @@ func (g *RoboGame) setupGameStateCallbacks() {
 func (g *RoboGame) LoadAssets() error {
 	assetManager := g.GetAssetManager()
 	
-	// Load player image
+	// Try to load player image, fallback to test sprite sheet if not available
 	playerImg, err := assetManager.LoadImage("player.png")
 	if err != nil {
-		return err
+		log.Printf("Could not load player.png, using test sprite sheet: %v", err)
+		// Create a test sprite sheet for development
+		playerImg = entities.CreateTestSpriteSheet()
 	}
 	g.playerImage = playerImg
+
+	// Create player entity
+	g.player = entities.NewPlayer(100, 100, playerImg)
+	
+	// Create input handler
+	g.inputHandler = entities.NewInputHandler(g.player)
 
 	// Set state to menu after assets are loaded
 	g.SetState(engine.StateMenu)
@@ -150,6 +164,23 @@ func (g *RoboGame) LoadAssets() error {
 
 // Update implements ebiten.Game interface
 func (g *RoboGame) Update() error {
+	// Calculate delta time
+	currentTime := float64(ebiten.CurrentTPS())
+	if currentTime > 0 {
+		g.deltaTime = 1.0 / currentTime
+	}
+	
+	// Update player and input when playing
+	stateManager := g.GetStateManager()
+	if stateManager.GetCurrentState() == engine.StatePlaying {
+		if g.inputHandler != nil {
+			g.inputHandler.Update()
+		}
+		if g.player != nil {
+			g.player.Update(g.deltaTime)
+		}
+	}
+	
 	// Call base game update (handles state management)
 	return g.Game.Update()
 }
@@ -199,17 +230,22 @@ func (g *RoboGame) drawMenuScreen(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{40, 60, 100, 255}) // Blue-gray background
 	
 	// Title
-	ebitenutil.DebugPrintAt(screen, "ROBO-9 PLATFORMER", 80, 50)
-	ebitenutil.DebugPrintAt(screen, "================", 80, 65)
+	ebitenutil.DebugPrintAt(screen, "ROBO-9 PLATFORMER", 160, 80)
+	ebitenutil.DebugPrintAt(screen, "================", 160, 95)
 	
 	// Menu options
-	ebitenutil.DebugPrintAt(screen, "ENTER - Start Game", 90, 100)
-	ebitenutil.DebugPrintAt(screen, "S - Settings", 90, 120)
+	ebitenutil.DebugPrintAt(screen, "ENTER - Start Game", 170, 140)
+	ebitenutil.DebugPrintAt(screen, "S - Settings", 170, 160)
 	
-	// Instructions
-	ebitenutil.DebugPrintAt(screen, "Controls:", 10, 180)
-	ebitenutil.DebugPrintAt(screen, "ESC/SPACE - Pause", 10, 195)
-	ebitenutil.DebugPrintAt(screen, "M - Menu", 10, 210)
+	// Game Controls
+	ebitenutil.DebugPrintAt(screen, "Game Controls:", 20, 220)
+	ebitenutil.DebugPrintAt(screen, "WASD/Arrow Keys - Move", 20, 240)
+	ebitenutil.DebugPrintAt(screen, "Space/W/Up - Jump", 20, 260)
+	ebitenutil.DebugPrintAt(screen, "C - Toggle Climb (Debug)", 20, 280)
+	ebitenutil.DebugPrintAt(screen, "X - Test Damage (Debug)", 20, 300)
+	
+	// System Controls
+	ebitenutil.DebugPrintAt(screen, "ESC - Pause | M - Menu", 20, 330)
 }
 
 // drawGameScreen renders the main game
@@ -219,13 +255,30 @@ func (g *RoboGame) drawGameScreen(screen *ebiten.Image) {
 	
 	// Game title and info
 	ebitenutil.DebugPrint(screen, "ROBO-9 Platformer - PLAYING")
-	ebitenutil.DebugPrintAt(screen, "ESC/SPACE: Pause | M: Menu | G: Game Over", 10, 20)
+	ebitenutil.DebugPrintAt(screen, "ESC: Pause | M: Menu | G: Game Over", 10, 20)
+	ebitenutil.DebugPrintAt(screen, "Controls: WASD/Arrows to move, Space/W/Up to jump", 10, 35)
+	ebitenutil.DebugPrintAt(screen, "Debug: C to toggle climb, X to test damage", 10, 50)
 
-	// Draw player if loaded
-	if g.playerImage != nil {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(100, 100)
-		screen.DrawImage(g.playerImage, op)
+	// Draw simple ground
+	groundY := 300
+	ground := ebiten.NewImage(480, 360-groundY)
+	ground.Fill(color.RGBA{101, 67, 33, 255}) // Brown ground
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(0, float64(groundY))
+	screen.DrawImage(ground, op)
+
+	// Draw player
+	if g.player != nil {
+		g.player.Draw(screen)
+		
+		// Debug info
+		x, y := g.player.GetPosition()
+		vx, vy := g.player.GetVelocity()
+		animState := g.player.GetAnimationState()
+		
+		debugInfo := fmt.Sprintf("Player: (%.1f, %.1f)\nVelocity: (%.1f, %.1f)\nOn Ground: %v\nFacing Right: %v\nAnimation: %v", 
+			x, y, vx, vy, g.player.IsOnGround(), g.player.IsFacingRight(), animState)
+		ebitenutil.DebugPrintAt(screen, debugInfo, 10, 90)
 	}
 
 	// Display asset manager stats
@@ -233,7 +286,7 @@ func (g *RoboGame) drawGameScreen(screen *ebiten.Image) {
 	stats := fmt.Sprintf("Assets loaded:\nImages: %d\nAudio: %d", 
 		assetManager.GetLoadedImageCount(), 
 		assetManager.GetLoadedAudioCount())
-	ebitenutil.DebugPrintAt(screen, stats, 200, 50)
+	ebitenutil.DebugPrintAt(screen, stats, 320, 200)
 }
 
 // drawPausedScreen renders the pause overlay
@@ -246,33 +299,33 @@ func (g *RoboGame) drawPausedScreen(screen *ebiten.Image) {
 	screen.DrawImage(g.overlayImage, nil)
 	
 	// Pause text
-	ebitenutil.DebugPrintAt(screen, "GAME PAUSED", 120, 100)
-	ebitenutil.DebugPrintAt(screen, "===========", 120, 115)
-	ebitenutil.DebugPrintAt(screen, "ESC/SPACE - Resume", 100, 140)
-	ebitenutil.DebugPrintAt(screen, "M - Main Menu", 100, 160)
+	ebitenutil.DebugPrintAt(screen, "GAME PAUSED", 190, 150)
+	ebitenutil.DebugPrintAt(screen, "===========", 190, 165)
+	ebitenutil.DebugPrintAt(screen, "ESC - Resume", 180, 190)
+	ebitenutil.DebugPrintAt(screen, "M - Main Menu", 180, 210)
 }
 
 // drawGameOverScreen renders the game over screen
 func (g *RoboGame) drawGameOverScreen(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{60, 20, 20, 255}) // Dark red background
 	
-	ebitenutil.DebugPrintAt(screen, "GAME OVER", 120, 100)
-	ebitenutil.DebugPrintAt(screen, "=========", 120, 115)
-	ebitenutil.DebugPrintAt(screen, "ENTER/R - Restart", 100, 140)
-	ebitenutil.DebugPrintAt(screen, "M/ESC - Main Menu", 100, 160)
+	ebitenutil.DebugPrintAt(screen, "GAME OVER", 190, 150)
+	ebitenutil.DebugPrintAt(screen, "=========", 190, 165)
+	ebitenutil.DebugPrintAt(screen, "ENTER/R - Restart", 170, 190)
+	ebitenutil.DebugPrintAt(screen, "M/ESC - Main Menu", 170, 210)
 }
 
 // drawSettingsScreen renders the settings screen
 func (g *RoboGame) drawSettingsScreen(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{60, 60, 60, 255}) // Gray background
 	
-	ebitenutil.DebugPrintAt(screen, "SETTINGS", 120, 50)
-	ebitenutil.DebugPrintAt(screen, "========", 120, 65)
-	ebitenutil.DebugPrintAt(screen, "Audio: ON", 100, 100)
-	ebitenutil.DebugPrintAt(screen, "Resolution: 320x240", 100, 120)
-	ebitenutil.DebugPrintAt(screen, "Difficulty: Normal", 100, 140)
+	ebitenutil.DebugPrintAt(screen, "SETTINGS", 200, 80)
+	ebitenutil.DebugPrintAt(screen, "========", 200, 95)
+	ebitenutil.DebugPrintAt(screen, "Audio: ON", 180, 140)
+	ebitenutil.DebugPrintAt(screen, "Resolution: 480x360", 180, 160)
+	ebitenutil.DebugPrintAt(screen, "Difficulty: Normal", 180, 180)
 	
-	ebitenutil.DebugPrintAt(screen, "ESC/BACKSPACE - Back", 80, 180)
+	ebitenutil.DebugPrintAt(screen, "ESC/BACKSPACE - Back", 160, 240)
 }
 
 // drawTransitionScreen renders transition effects
@@ -302,11 +355,11 @@ func (g *RoboGame) drawTransitionScreen(screen *ebiten.Image) {
 	screen.DrawImage(g.overlayImage, nil)
 	
 	// Show transition progress for debugging
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Transitioning... %.1f%%", progress*100), 10, 220)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Transitioning... %.1f%%", progress*100), 10, 340)
 }
 
 func main() {
-	ebiten.SetWindowSize(640, 480)
+	ebiten.SetWindowSize(960, 720)
 	ebiten.SetWindowTitle("ROBO-9 Platformer")
 
 	game := NewRoboGame()

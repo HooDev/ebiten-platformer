@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"ebiten-platformer/engine"
 )
 
@@ -39,8 +40,8 @@ func TestRoboGame_LoadAssets_Success(t *testing.T) {
 	
 	// Create game with custom asset directory
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    tmpDir,
 			UseEmbedded: false,
@@ -50,6 +51,7 @@ func TestRoboGame_LoadAssets_Success(t *testing.T) {
 	baseGame := engine.NewGame(config)
 	game := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
 	}
 	
 	// Load assets
@@ -78,8 +80,8 @@ func TestRoboGame_LoadAssets_Success(t *testing.T) {
 func TestRoboGame_LoadAssets_Failure(t *testing.T) {
 	// Create game with non-existent asset directory
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    "/nonexistent/directory",
 			UseEmbedded: false,
@@ -89,22 +91,33 @@ func TestRoboGame_LoadAssets_Failure(t *testing.T) {
 	baseGame := engine.NewGame(config)
 	game := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
 	}
 	
-	// Load assets should fail
+	// Load assets should succeed due to fallback
 	err := game.LoadAssets()
-	if err == nil {
-		t.Error("Expected LoadAssets to fail with non-existent directory")
+	if err != nil {
+		t.Errorf("LoadAssets should succeed with fallback, got error: %v", err)
 	}
 	
-	// Player image should still be nil
-	if game.playerImage != nil {
-		t.Error("playerImage should be nil after failed LoadAssets")
+	// Player image should be the fallback test sprite sheet
+	if game.playerImage == nil {
+		t.Error("playerImage should not be nil after LoadAssets with fallback")
 	}
 	
-	// State should still be loading
-	if game.GetState() != engine.StateLoading {
-		t.Errorf("Expected state to remain StateLoading after failed LoadAssets, got %v", game.GetState())
+	// State should transition to menu even with fallback
+	if game.GetState() != engine.StateMenu {
+		t.Errorf("Expected state to be StateMenu after LoadAssets with fallback, got %v", game.GetState())
+	}
+	
+	// Player should be created successfully
+	if game.player == nil {
+		t.Error("player should not be nil after LoadAssets with fallback")
+	}
+	
+	// Input handler should be created
+	if game.inputHandler == nil {
+		t.Error("inputHandler should not be nil after LoadAssets with fallback")
 	}
 }
 
@@ -112,8 +125,8 @@ func TestRoboGame_Update(t *testing.T) {
 	tmpDir := setupTestGameAssets(t)
 	
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    tmpDir,
 			UseEmbedded: false,
@@ -123,6 +136,7 @@ func TestRoboGame_Update(t *testing.T) {
 	baseGame := engine.NewGame(config)
 	game := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
 	}
 	
 	// Load assets first
@@ -142,8 +156,8 @@ func TestRoboGame_GameStateTransitions(t *testing.T) {
 	tmpDir := setupTestGameAssets(t)
 	
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    tmpDir,
 			UseEmbedded: false,
@@ -153,6 +167,7 @@ func TestRoboGame_GameStateTransitions(t *testing.T) {
 	baseGame := engine.NewGame(config)
 	game := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
 	}
 	
 	// Initial state should be loading
@@ -182,8 +197,8 @@ func TestRoboGame_AssetManagerIntegration(t *testing.T) {
 	tmpDir := setupTestGameAssetsWithExtras(t, additionalAssets)
 	
 	config := engine.GameConfig{
-		ScreenWidth:  320,
-		ScreenHeight: 240,
+		ScreenWidth:  480,
+		ScreenHeight: 360,
 		AssetConfig: engine.AssetConfig{
 			AssetDir:    tmpDir,
 			UseEmbedded: false,
@@ -193,6 +208,7 @@ func TestRoboGame_AssetManagerIntegration(t *testing.T) {
 	baseGame := engine.NewGame(config)
 	game := &RoboGame{
 		Game: baseGame,
+		overlayImage: ebiten.NewImage(480, 360),
 	}
 	
 	// Load initial assets
@@ -245,8 +261,8 @@ func BenchmarkRoboGame_LoadAssets(b *testing.B) {
 	
 	for i := 0; i < b.N; i++ {
 		config := engine.GameConfig{
-			ScreenWidth:  320,
-			ScreenHeight: 240,
+			ScreenWidth:  480,
+			ScreenHeight: 360,
 			AssetConfig: engine.AssetConfig{
 				AssetDir:    tmpDir,
 				UseEmbedded: false,
@@ -256,6 +272,7 @@ func BenchmarkRoboGame_LoadAssets(b *testing.B) {
 		baseGame := engine.NewGame(config)
 		game := &RoboGame{
 			Game: baseGame,
+			overlayImage: ebiten.NewImage(480, 360),
 		}
 		
 		err := game.LoadAssets()
