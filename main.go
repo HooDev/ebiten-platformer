@@ -11,6 +11,7 @@ import (
 
 	"ebiten-platformer/engine"
 	"ebiten-platformer/entities"
+	"ebiten-platformer/level"
 )
 
 // RoboGame extends the base engine.Game with platformer-specific logic
@@ -20,6 +21,8 @@ type RoboGame struct {
 	overlayImage   *ebiten.Image
 	player         *entities.Player
 	inputHandler   *entities.InputHandler
+	currentLevel   *level.Level
+	levelAdapter   *level.CollisionAdapter
 	deltaTime      float64
 	lastUpdateTime float64
 }
@@ -149,8 +152,15 @@ func (g *RoboGame) LoadAssets() error {
 	}
 	g.playerImage = playerImg
 
+	// Create level
+	g.currentLevel = level.CreateSimpleLevel()
+	g.levelAdapter = level.NewCollisionAdapter(g.currentLevel)
+
 	// Create player entity
-	g.player = entities.NewPlayer(100, 100, playerImg)
+	g.player = entities.NewPlayer(100, 200, playerImg) // Start higher up
+	
+	// Connect player with level for collision detection
+	g.player.SetLevel(g.levelAdapter)
 	
 	// Create input handler
 	g.inputHandler = entities.NewInputHandler(g.player)
@@ -159,6 +169,7 @@ func (g *RoboGame) LoadAssets() error {
 	g.SetState(engine.StateMenu)
 	
 	log.Println("All assets loaded successfully")
+	log.Printf("Level created: %dx%d tiles, tile size: %d", g.currentLevel.Width, g.currentLevel.Height, g.currentLevel.TileSize)
 	return nil
 }
 
@@ -253,21 +264,12 @@ func (g *RoboGame) drawGameScreen(screen *ebiten.Image) {
 	// Clear screen with sky blue
 	screen.Fill(color.RGBA{135, 206, 235, 255})
 	
-	// Game title and info
-	ebitenutil.DebugPrint(screen, "ROBO-9 Platformer - PLAYING")
-	ebitenutil.DebugPrintAt(screen, "ESC: Pause | M: Menu | G: Game Over", 10, 20)
-	ebitenutil.DebugPrintAt(screen, "Controls: WASD/Arrows to move, Space/W/Up to jump", 10, 35)
-	ebitenutil.DebugPrintAt(screen, "Debug: C to toggle climb, X to test damage", 10, 50)
-
-	// Draw simple ground
-	groundY := 300
-	ground := ebiten.NewImage(480, 360-groundY)
-	ground.Fill(color.RGBA{101, 67, 33, 255}) // Brown ground
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(0, float64(groundY))
-	screen.DrawImage(ground, op)
-
-	// Draw player
+	// Draw level first (background)
+	if g.currentLevel != nil {
+		g.currentLevel.Draw(screen)
+	}
+	
+	// Draw player on top of level
 	if g.player != nil {
 		g.player.Draw(screen)
 		
@@ -276,11 +278,17 @@ func (g *RoboGame) drawGameScreen(screen *ebiten.Image) {
 		vx, vy := g.player.GetVelocity()
 		animState := g.player.GetAnimationState()
 		
-		debugInfo := fmt.Sprintf("Player: (%.1f, %.1f)\nVelocity: (%.1f, %.1f)\nOn Ground: %v\nFacing Right: %v\nAnimation: %v", 
-			x, y, vx, vy, g.player.IsOnGround(), g.player.IsFacingRight(), animState)
+		debugInfo := fmt.Sprintf("Player: (%.1f, %.1f)\nVelocity: (%.1f, %.1f)\nOn Ground: %v\nFacing Right: %v\nAnimation: %v\nLevel: %s", 
+			x, y, vx, vy, g.player.IsOnGround(), g.player.IsFacingRight(), animState, g.currentLevel.Name)
 		ebitenutil.DebugPrintAt(screen, debugInfo, 10, 90)
 	}
-
+	
+	// Game title and info
+	ebitenutil.DebugPrint(screen, "ROBO-9 Platformer - PLAYING (Tile-Based Collision)")
+	ebitenutil.DebugPrintAt(screen, "ESC: Pause | M: Menu | G: Game Over", 10, 20)
+	ebitenutil.DebugPrintAt(screen, "Controls: WASD/Arrows to move, Space/W/Up to jump", 10, 35)
+	ebitenutil.DebugPrintAt(screen, "Debug: C to toggle climb, X to test damage", 10, 50)
+	
 	// Display asset manager stats
 	assetManager := g.GetAssetManager()
 	stats := fmt.Sprintf("Assets loaded:\nImages: %d\nAudio: %d", 
