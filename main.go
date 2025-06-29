@@ -139,8 +139,8 @@ func (g *RoboGame) LoadAssets() error {
 	}
 	g.playerImage = playerImg
 
-	// Transition to menu after assets are loaded (with a nice transition)
-	g.TransitionToState(engine.StateMenu, 1.0)
+	// Set state to menu after assets are loaded
+	g.SetState(engine.StateMenu)
 	
 	log.Println("All assets loaded successfully")
 	return nil
@@ -228,9 +228,9 @@ func (g *RoboGame) drawGameScreen(screen *ebiten.Image) {
 
 	// Display asset manager stats
 	assetManager := g.GetAssetManager()
-	stats := "Assets loaded:\n"
-	stats += "Images: " + string(rune(assetManager.GetLoadedImageCount() + '0')) + "\n"
-	stats += "Audio: " + string(rune(assetManager.GetLoadedAudioCount() + '0'))
+	stats := fmt.Sprintf("Assets loaded:\nImages: %d\nAudio: %d", 
+		assetManager.GetLoadedImageCount(), 
+		assetManager.GetLoadedAudioCount())
 	ebitenutil.DebugPrintAt(screen, stats, 200, 50)
 }
 
