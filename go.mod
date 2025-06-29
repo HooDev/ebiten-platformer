@@ -1,4 +1,4 @@
-module hoodev/ebit-platform
+module ebiten-platformer
 
 go 1.23.2
 
