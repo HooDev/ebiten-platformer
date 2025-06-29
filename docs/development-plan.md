@@ -13,7 +13,7 @@ This document outlines the development roadmap for the ROBO-9 platformer game bu
 - [x] Initialise Go module and Ebitengine dependency
 - [x] Create basic project structure
 - [x] Set up asset loading system
-- [ ] Implement basic game state management
+- [x] Implement basic game state management
 
 #### 1.2 Basic Player Entity
 - [ ] Create ROBO-9 sprite and animation system

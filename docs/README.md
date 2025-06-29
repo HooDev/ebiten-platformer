@@ -34,6 +34,11 @@ When adding new documentation:
 ## Systems
 
 * [Asset Loading System](asset-loading-system.md) - Centralised asset management and loading
+* [Game State Management](game-state-management.md) - State management, transitions, and callback system
+
+## Quick References
+
+* [Game State Management Quick Reference](game-state-management-quick-reference.md) - Common patterns and operations
 
 ## Technical Guides
 
