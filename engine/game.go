@@ -20,13 +20,6 @@ const (
 	StateTransition
 )
 
-// Transition represents a transition from one state to another
-type Transition struct {
-	From     GameState
-	To       GameState
-	Duration float64 // Duration in seconds (0 means instant)
-}
-
 // StateManager handles game state transitions and callbacks
 type StateManager struct {
 	currentState  GameState
