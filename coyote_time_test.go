@@ -9,6 +9,9 @@ import (
 	"ebiten-platformer/level"
 )
 
+// Main coyote time integration tests using realistic level collision detection.
+// These tests verify coyote time works correctly when walking off platforms.
+
 func TestCoyoteTime(t *testing.T) {
 	// Create a test level with a platform
 	testLevel := level.NewLevel(10, 10, 32, "coyote_test")
