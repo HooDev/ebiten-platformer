@@ -1,4 +1,8 @@
-# Documentation
+# ROBO-9 Platformer Documentation
+
+## About This Project
+
+ROBO-9 is a 2D platformer game built with Go and Ebitengine, featuring a robot character that collects energy hearts to help sad cats. The game emphasises precise movement, robust collision detection, and engaging platformer mechanics.
 
 ## About This Documentation
 
@@ -31,15 +35,49 @@ When adding new documentation:
 
 * [Development Plan](development-plan.md) - Complete roadmap and timeline for the ROBO-9 platformer
 
-## Systems
+## Core Systems
 
+### Asset Management
 * [Asset Loading System](asset-loading-system.md) - Centralised asset management and loading
+
+### Game State Management  
 * [Game State Management](game-state-management.md) - State management, transitions, and callback system
-
-## Quick References
-
 * [Game State Management Quick Reference](game-state-management-quick-reference.md) - Common patterns and operations
 
-## Technical Guides
+### Collision System
+* [Collision System Developer Guide](collision-system.md) - How to work with and extend the collision system
 
+### Animation & Graphics
+* [Animation System](animation-system.md) - Animation controller and state management
 * [Drawing an Image](draw-image.md) - Ebitengine image rendering basics
+
+## Entity Implementation
+
+* [Player Implementation](player-implementation.md) - ROBO-9 player entity design and features
+
+## Technical Specifications
+
+* [ROBO-9 Sprite Specification](robo9-sprite-specification.md) - Sprite sheet layout and animation specifications
+
+## Development Notes & Fixes
+
+* [Control Scheme Fix](control-scheme-fix.md) - Input handling improvements
+* [Screen Size Update](screen-size-update.md) - Screen resolution and scaling adjustments
+
+---
+
+## Quick Navigation
+
+### For New Developers
+1. Start with the [Development Plan](development-plan.md) for project overview
+2. Review [Player Implementation](player-implementation.md) for core gameplay mechanics
+3. Read [Collision System Developer Guide](collision-system.md) for physics integration
+
+### For System Integration
+- [Asset Loading System](asset-loading-system.md) - Loading and managing game assets
+- [Game State Management](game-state-management.md) - Managing different game states
+- [Animation System](animation-system.md) - Character and entity animations
+
+### For Technical Reference
+- [ROBO-9 Sprite Specification](robo9-sprite-specification.md) - Asset specifications
+- [Game State Management Quick Reference](game-state-management-quick-reference.md) - Common operations
