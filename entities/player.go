@@ -6,6 +6,27 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Constants for collision detection tuning
+const (
+	// BinarySearchMaxIterations defines the maximum number of iterations
+	// for binary search collision detection. Higher values provide more
+	// precision but cost more CPU cycles.
+	BinarySearchMaxIterations = 50
+	
+	// BinarySearchMaxIterationsY defines the maximum number of iterations
+	// for Y-axis binary search collision detection. Uses fewer iterations
+	// to prevent over-precision in vertical movement.
+	BinarySearchMaxIterationsY = 30
+	
+	// BinarySearchTolerance defines the minimum distance threshold for
+	// binary search convergence. Smaller values provide higher precision.
+	BinarySearchTolerance = 0.01
+	
+	// BinarySearchToleranceY defines the tolerance for Y-axis binary search.
+	// Slightly larger than X-axis to balance precision and stability.
+	BinarySearchToleranceY = 0.1
+)
+
 // Player represents the ROBO-9 character
 type Player struct {
 	// Position and movement
@@ -437,15 +458,14 @@ func (p *Player) sweptHorizontalMovement(startX, y, deltaX float64) float64 {
 func (p *Player) binarySearchCollisionX(startX, y, deltaX float64) float64 {
 	left := startX
 	right := startX + deltaX
-	tolerance := 0.01 // Sub-pixel precision
 	
 	// Ensure left is valid, right causes collision
 	if deltaX > 0 {
 		// Moving right
-		for i := 0; i < 50; i++ { // Max 50 iterations for safety
+		for i := 0; i < BinarySearchMaxIterations; i++ {
 			mid := (left + right) / 2
 			
-			if math.Abs(right - left) < tolerance {
+			if math.Abs(right - left) < BinarySearchTolerance {
 				p.VelocityX = 0
 				return left
 			}
@@ -459,10 +479,10 @@ func (p *Player) binarySearchCollisionX(startX, y, deltaX float64) float64 {
 		}
 	} else {
 		// Moving left
-		for i := 0; i < 50; i++ { // Max 50 iterations for safety
+		for i := 0; i < BinarySearchMaxIterations; i++ {
 			mid := (left + right) / 2
 			
-			if math.Abs(right - left) < tolerance {
+			if math.Abs(right - left) < BinarySearchTolerance {
 				p.VelocityX = 0
 				return right
 			}
@@ -501,15 +521,13 @@ func (p *Player) sweptVerticalMovement(x, startY, deltaY float64) float64 {
 
 // binarySearchCollisionY uses binary search to find the exact collision point on Y axis
 func (p *Player) binarySearchCollisionY(x, startY, deltaY float64) float64 {
-	tolerance := 0.1 // Slightly less aggressive precision
-	
 	if deltaY > 0 { // Moving down (falling)
 		left := startY
 		right := startY + deltaY
 		bestValidY := startY
 		
-		for i := 0; i < 30; i++ { // Reduced iterations to prevent over-precision
-			if math.Abs(right - left) < tolerance {
+		for i := 0; i < BinarySearchMaxIterationsY; i++ {
+			if math.Abs(right - left) < BinarySearchToleranceY {
 				break
 			}
 			
@@ -547,8 +565,8 @@ func (p *Player) binarySearchCollisionY(x, startY, deltaY float64) float64 {
 		left := startY + deltaY
 		right := startY
 		
-		for i := 0; i < 30; i++ { // Reduced iterations
-			if math.Abs(right - left) < tolerance {
+		for i := 0; i < BinarySearchMaxIterationsY; i++ {
+			if math.Abs(right - left) < BinarySearchToleranceY {
 				break
 			}
 			

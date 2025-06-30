@@ -47,7 +47,8 @@ ROBO-9 comes equipped with several helpful capabilities:
 
 - **Complete Animation System**: Multi-state sprite animations with smooth transitions
 - **ROBO-9 Player Character**: Fully animated robot with movement, jumping, climbing, and damage states
-- **Physics-Based Movement**: Gravity, friction, and collision-based player movement
+- **Robust Collision System**: Tile-based collision detection with binary search for sub-pixel precision
+- **Physics-Based Movement**: Gravity, friction, and swept collision-based player movement
 - **Flexible Input System**: Keyboard controls with multiple key bindings
 - **Game State Management**: Menu, playing, paused, and game over states
 - **Asset Management**: Efficient sprite loading and management
@@ -115,12 +116,20 @@ Or use the provided convenience script:
 │   └── assets.go          # Asset loading and management
 ├── entities/              # Game entities and components
 │   ├── player.go          # ROBO-9 player implementation
+│   ├── collision.go       # Collision detection interfaces
 │   ├── animation.go       # Animation system
 │   ├── input.go           # Input handling
-│   └── sprites.go         # Test sprite generation	├── assets/                # Game assets (sprites, audio, etc.)
-	│   └── player.png         # Player sprite sheet (192x96px)
-	└── docs/                  # Documentation
+│   └── sprites.go         # Test sprite generation
+├── level/                 # Level system and tile-based collision
+│   ├── level.go           # Level implementation with tiles
+│   ├── tile.go            # Tile definitions and properties
+│   ├── adapter.go         # Collision adapter for entities
+│   └── test_levels.go     # Test level generation
+├── assets/                # Game assets (sprites, audio, etc.)
+│   └── player.png         # Player sprite sheet (192x96px)
+└── docs/                  # Documentation
     ├── development-plan.md         # Project roadmap
+    ├── collision-system.md         # Collision system developer guide
     ├── animation-system.md         # Animation system docs
     ├── player-implementation.md    # Player entity docs
     └── robo9-sprite-specification.md # Sprite requirements
@@ -131,6 +140,7 @@ Or use the provided convenience script:
 Comprehensive documentation is available in the `docs/` directory:
 
 - **[Development Plan](docs/development-plan.md)**: Complete project roadmap and feature timeline
+- **[Collision System](docs/collision-system.md)**: Tile-based collision detection developer guide
 - **[Animation System](docs/animation-system.md)**: Technical details of the animation framework
 - **[Player Implementation](docs/player-implementation.md)**: ROBO-9 character implementation guide
 - **[Sprite Specification](docs/robo9-sprite-specification.md)**: Detailed sprite sheet requirements and layout
@@ -145,6 +155,7 @@ This project demonstrates various game development concepts including:
 - **Animation Systems**: Sprite-based animation with state management and timing
 - **Physics Simulation**: Basic gravity, collision detection, and movement physics
 - **Game State Management**: Menu systems, pause functionality, and state transitions
+- **Collision Detection**: Robust tile-based collision with binary search precision
 - **Asset Management**: Loading and organizing game resources efficiently
 - **Entity-Component Patterns**: Modular game object design and architecture
 

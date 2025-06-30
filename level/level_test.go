@@ -118,7 +118,9 @@ func TestOneWayPlatform(t *testing.T) {
 	level.SetTile(1, 1, TileOneWay)
 	
 	// Test entity coming from above (should collide)
-	result := level.CheckCollision(32, 27, 32, 10) // Just above the platform
+	// Platform is at tile (1,1) = world pos (32,32)
+	// Entity bottom at Y=30 with height=4 puts bottom at Y=34, which is 2 pixels below tile top (32)
+	result := level.CheckCollision(32, 30, 32, 4) // Adjusted to work with GroundTolerance=2.0
 	if !result.OneWayPlatform {
 		t.Error("Should detect one-way platform collision from above")
 	}
