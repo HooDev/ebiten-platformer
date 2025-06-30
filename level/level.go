@@ -7,6 +7,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Constants for collision detection tuning
+const (
+	// GroundTolerance defines how close an entity must be to a tile surface
+	// to be considered "on ground". This accounts for floating-point precision
+	// and provides stable ground detection.
+	GroundTolerance = 2.0
+)
+
 // Level represents a game level with tile-based collision
 type Level struct {
 	Width      int             // Level width in tiles
@@ -132,9 +140,8 @@ func (l *Level) CheckCollision(entityX, entityY, entityWidth, entityHeight float
 			// Check for ground contact (entity bottom touching tile top)
 			entityBottom := entityY + entityHeight
 			tileTop := tileBounds.Y
-			groundTolerance := 2.0 // More reasonable tolerance for consistent positioning
 			
-			if entityBottom >= tileTop && entityBottom <= tileTop + groundTolerance && 
+			if entityBottom >= tileTop && entityBottom <= tileTop + GroundTolerance && 
 				entityX < tileBounds.X + tileBounds.Width && entityX + entityWidth > tileBounds.X {
 				
 				// Process ground contact
@@ -175,8 +182,7 @@ func (l *Level) processCollision(result *CollisionResult, tile *Tile, entityX, e
 		// More precise ground detection: entity is on ground if:
 		// 1. Bottom of entity is very close to the top of the tile
 		// 2. The overlap is minimal (tolerance for floating point precision)
-		groundTolerance := 2.0 // More reasonable tolerance for consistent positioning
-		isOnGround := entityBottom >= tileTop && entityBottom <= tileTop + groundTolerance
+		isOnGround := entityBottom >= tileTop && entityBottom <= tileTop + GroundTolerance
 		
 		if isOnGround {
 			result.OnGround = true
@@ -228,8 +234,7 @@ func (l *Level) processCollision(result *CollisionResult, tile *Tile, entityX, e
 		tileTop := tileBounds.Y
 		
 		// Only collide if entity is coming from above and touching the surface
-		groundTolerance := 5.0 // Balanced tolerance for stability
-		if entityBottom >= tileTop && entityBottom <= tileTop + groundTolerance {
+		if entityBottom >= tileTop && entityBottom <= tileTop + GroundTolerance {
 			result.OnGround = true
 			result.OneWayPlatform = true
 			result.CollisionY = true
