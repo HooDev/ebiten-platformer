@@ -127,6 +127,8 @@ func (l *Level) CheckCollision(entityX, entityY, entityWidth, entityHeight float
 	
 	// Additionally check for ground contact with tiles directly below the entity
 	if belowTile > bottomTile { // Only if we're not already checking this tile row
+		solidGroundWidth := 0.0 // Track how much solid ground is under the player
+		
 		for tileX := leftTile; tileX <= rightTile; tileX++ {
 			tile := l.GetTile(tileX, belowTile)
 			
@@ -144,11 +146,17 @@ func (l *Level) CheckCollision(entityX, entityY, entityWidth, entityHeight float
 			if entityBottom >= tileTop && entityBottom <= tileTop + GroundTolerance && 
 				entityX < tileBounds.X + tileBounds.Width && entityX + entityWidth > tileBounds.X {
 				
-				// Process ground contact
-				result.Collided = true
-				if tile.IsSolid() || tile.IsOneWay() {
-					result.OnGround = true
+				// Calculate how much of the entity overlaps with this solid tile horizontally
+				overlapLeft := math.Max(entityX, tileBounds.X)
+				overlapRight := math.Min(entityX + entityWidth, tileBounds.X + tileBounds.Width)
+				overlapWidth := overlapRight - overlapLeft
+				
+				if overlapWidth > 0 && (tile.IsSolid() || tile.IsOneWay()) {
+					solidGroundWidth += overlapWidth
 				}
+				
+				// Process ground contact for other properties
+				result.Collided = true
 				if tile.IsOneWay() {
 					result.OneWayPlatform = true
 				}
@@ -159,6 +167,13 @@ func (l *Level) CheckCollision(entityX, entityY, entityWidth, entityHeight float
 					result.DangerousTile = true
 				}
 			}
+		}
+		
+		// Only consider the player "on ground" if a significant portion is over solid ground
+		// Require at least 50% of the player's width to be over solid ground
+		requiredGroundWidth := entityWidth * 0.5
+		if solidGroundWidth >= requiredGroundWidth {
+			result.OnGround = true
 		}
 	}
 
@@ -181,11 +196,19 @@ func (l *Level) processCollision(result *CollisionResult, tile *Tile, entityX, e
 		
 		// More precise ground detection: entity is on ground if:
 		// 1. Bottom of entity is very close to the top of the tile
-		// 2. The overlap is minimal (tolerance for floating point precision)
+		// 2. A significant portion of the entity is over the solid tile
 		isOnGround := entityBottom >= tileTop && entityBottom <= tileTop + GroundTolerance
 		
 		if isOnGround {
-			result.OnGround = true
+			// Calculate how much of the entity overlaps with this tile horizontally
+			overlapLeft := math.Max(entityX, tileBounds.X)
+			overlapRight := math.Min(entityX + entityWidth, tileBounds.X + tileBounds.Width)
+			overlapWidth := overlapRight - overlapLeft
+			
+			// Only consider on ground if a significant portion (50%) is over the tile
+			if overlapWidth >= entityWidth * 0.5 {
+				result.OnGround = true
+			}
 		}
 		
 		// Improved collision detection logic:
