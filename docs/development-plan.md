@@ -28,7 +28,7 @@ This document outlines the development roadmap for the ROBO-9 platformer game bu
 	- [x] **Implement robust swept collision detection (prevents tunneling)**
 	- [x] **Fix player sinking/getting stuck on platform edges**
 	- [x] **Implement precise binary search collision (eliminates tunneling and variable sinking)**
-- [ ] **Add coyote time for more forgiving jumps**
+- [x] **Add coyote time for more forgiving jumps**
 - [ ] **Add jump buffering for responsive controls**
 - [ ] **Basic camera following player**
 

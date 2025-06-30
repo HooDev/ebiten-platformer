@@ -49,6 +49,7 @@ ROBO-9 comes equipped with several helpful capabilities:
 - **ROBO-9 Player Character**: Fully animated robot with movement, jumping, climbing, and damage states
 - **Robust Collision System**: Tile-based collision detection with binary search for sub-pixel precision
 - **Physics-Based Movement**: Gravity, friction, and swept collision-based player movement
+- **Coyote Time**: Forgiving jump mechanics allowing players to jump briefly after leaving platforms
 - **Flexible Input System**: Keyboard controls with multiple key bindings
 - **Game State Management**: Menu, playing, paused, and game over states
 - **Asset Management**: Efficient sprite loading and management
@@ -132,6 +133,7 @@ Or use the provided convenience script:
     ├── collision-system.md         # Collision system developer guide
     ├── animation-system.md         # Animation system docs
     ├── player-implementation.md    # Player entity docs
+    ├── coyote-time.md             # Coyote time implementation guide
     └── robo9-sprite-specification.md # Sprite requirements
 ```
 
@@ -143,6 +145,7 @@ Comprehensive documentation is available in the `docs/` directory:
 - **[Collision System](docs/collision-system.md)**: Tile-based collision detection developer guide
 - **[Animation System](docs/animation-system.md)**: Technical details of the animation framework
 - **[Player Implementation](docs/player-implementation.md)**: ROBO-9 character implementation guide
+- **[Coyote Time](docs/coyote-time.md)**: Forgiving jump mechanics implementation guide
 - **[Sprite Specification](docs/robo9-sprite-specification.md)**: Detailed sprite sheet requirements and layout
 
 
@@ -154,6 +157,7 @@ This project demonstrates various game development concepts including:
 - **Input Handling**: Keyboard input processing and player control systems
 - **Animation Systems**: Sprite-based animation with state management and timing
 - **Physics Simulation**: Basic gravity, collision detection, and movement physics
+- **Coyote Time Mechanics**: Forgiving jump timing for improved player experience
 - **Game State Management**: Menu systems, pause functionality, and state transitions
 - **Collision Detection**: Robust tile-based collision with binary search precision
 - **Asset Management**: Loading and organizing game resources efficiently

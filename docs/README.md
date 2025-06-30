@@ -47,6 +47,9 @@ When adding new documentation:
 ### Collision System
 * [Collision System Developer Guide](collision-system.md) - How to work with and extend the collision system
 
+### Physics & Movement
+* [Coyote Time Implementation](coyote-time.md) - Forgiving jump mechanics for platform edges
+
 ### Animation & Graphics
 * [Animation System](animation-system.md) - Animation controller and state management
 * [Drawing an Image](draw-image.md) - Ebitengine image rendering basics
@@ -72,6 +75,7 @@ When adding new documentation:
 1. Start with the [Development Plan](development-plan.md) for project overview
 2. Review [Player Implementation](player-implementation.md) for core gameplay mechanics
 3. Read [Collision System Developer Guide](collision-system.md) for physics integration
+4. Understand [Coyote Time Implementation](coyote-time.md) for movement mechanics
 
 ### For System Integration
 - [Asset Loading System](asset-loading-system.md) - Loading and managing game assets
